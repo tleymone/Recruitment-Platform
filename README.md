@@ -3,7 +3,7 @@
 
 ## Présentation
 
-Ce projet est développé pour l'UV SR10 par Thomas Leymonerie et Nicolas Parmentier.
+Ce projet est développé pour l'UV SR10 de l'UTC par Thomas Leymonerie et Nicolas Parmentier en 2023.
 Il s'agit d’une application web de recrutement.
 
 ## Structure du projet
