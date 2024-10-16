@@ -1,0 +1,33 @@
+<body>
+    <h1>
+        <%= title %>
+    </h1>
+    <table border>
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Candidat</th>
+                <th>Offre d'emploi</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% applications.forEach((application)=> { %>
+                <tr>
+                    <td>
+                        <%= application.id %>
+                    </td>
+                    <td>
+                        <%= application.user %>
+                    </td>
+                    <td>
+                        <%= application.jobOffer %>
+                    </td>
+                    <td>
+                        <%= application.date %>
+                    </td>
+                </tr>
+                <% }) %>
+        </tbody>
+    </table>
+</body>

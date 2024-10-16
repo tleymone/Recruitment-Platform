@@ -1,0 +1,41 @@
+<body>
+    <h1>
+        <%= title %>
+    </h1>
+    <table border>
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>jobSheet</th>
+                <th>State</th>
+                <th>endDate</th>
+                <th>Documents</th>
+                <th>nbDocuments</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% jobOffers.forEach((jobOffer)=> { %>
+                <tr>
+                    <td>
+                        <%= jobOffer.number %>
+                    </td>
+                    <td>
+                        <%= jobOffer.jobSheet %>
+                    </td>
+                    <td>
+                        <%= jobOffer.state %>
+                    </td>
+                    <td>
+                        <%= jobOffer.endDate %>
+                    </td>
+                    <td>
+                        <%= jobOffer.requestedDocuments %>
+                    </td>
+                    <td>
+                        <%= jobOffer.nbDocuments %>
+                    </td>
+                </tr>
+                <% }) %>
+        </tbody>
+    </table>
+</body>

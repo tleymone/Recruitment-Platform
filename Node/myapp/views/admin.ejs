@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Espace Admin</title>
+    <link rel="stylesheet" href="">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <!-- Container wrapper -->
+        <div class="container-fluid">
+            <!-- Navbar brand -->
+            <a class="navbar-brand mt-2 mt-lg-0" href="#">
+                <img src="img/favicon.png" height="50" alt="MDB Logo" loading="lazy" />
+            </a>
+            <!-- Left links -->
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <div class="d-flex align-items-center">
+                    <li class="nav-item nav-link text-light"><strong>
+                            <%=orgName %>
+                        </strong>
+                    </li>
+                    <li class="nav-item nav-link text-light"><strong>
+                            <%=userlname %>
+                                <%=userfname %>
+                        </strong>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#createRequests" onclick="showCreateRequests()">Demandes
+                            d'adhésion</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#userAdministration" onclick="showUserAdministration()">Gestion
+                            utilisateurs</a>
+                    </li>
+                </div>
+            </ul>
+            <!-- Left links -->
+
+            <!-- Right elements -->
+            <div class="d-flex align-items-center">
+                <!-- Icon -->
+                <a class="link-secondary me-3" href="#">
+                    <i class="fas fa-shopping-cart"></i>
+                </a>
+                <a class="btn btn-secondary ms-3" href="/candidate" role="button">Espace Candidat</a>
+                <a class="btn btn-secondary ms-3" href="/recruiter" role="button">Espace Recruteur</a>
+                <a href="/logout"><button class="btn btn-danger ms-3">Logout</button></a>
+
+            </div>
+            <!-- Right elements -->
+        </div>
+        <!-- Container wrapper -->
+    </nav>
+    <!-- Navbar -->
+
+    <!-- CREATE REQUESTS -->
+    <div class="col mt-4" id="createRequestsDiv">
+        <div class="mt-2 px-3" style="display: block;">
+            <div class="d-flex justify-content-between align-items-center">
+                <h3>Demandes de création d'organisation</h3>
+            </div>
+            <hr>
+            <div class="col-12 d-flex justify-content-center flex-wrap">
+                <% createRequests.forEach((createRequest, index)=> {
+                    %>
+                    <div id="createRequest-<%=createRequest.id %>" class="card mb-2 p-4 mx-1 col-sm-4 col-lg-3">
+                        <h5 class="card-title ml-4 mb-auto pl-4" id="createRequestTitle-<%=createRequest.id %>">
+                            <%= createRequest.lname %>
+                                <%= createRequest.fname %><span class="text-muted"></span>
+                        </h5>
+                        <div class="card-body pl-4 pb-0">
+
+                            <div>
+                                <label class="card-text mb-1">
+                                    <strong>Organisation:</strong>
+                                </label>
+                                <% if (createRequest.name!=null ) { %>
+                                    <span>
+                                        <%= createRequest.name %>
+                                    </span>
+                                    <% } %>
+                            </div>
+                            <div>
+                                <label class="card-text mb-1">
+                                    <strong>Email:</strong>
+                                </label>
+                                <span>
+                                    <%= createRequest.email %>
+                                </span>
+                            </div>
+                            <div>
+                                <label class="card-text mb-1">
+                                    <strong>Telephone:</strong>
+                                </label>
+                                <span>
+                                    <%= createRequest.telephone %>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="mt-4 d-flex align-items-center justify-content-center">
+                            <button
+                                class="btn btn-success mb-2 mx-4 d-flex justify-content-center align-items-center w-25"
+                                onclick="acceptCreateRequest(<%= createRequest.id %>)">
+                                <i class="bi bi-check-square h3"></i>
+                            </button>
+
+                            <button class="btn btn-danger mb-2 d-flex justify-content-center align-items-center w-25"
+                                onclick="denyCreateRequest(<%= createRequest.id %>)">
+                                <i class="bi bi-x-square h3"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="acceptCreateRequest-<%=createRequest.id %>" class="card mb-2 mx-1 col-sm-4 col-lg-3"
+                        style="background-color: green; display: none;">
+                        <div class="h-100 w-100 d-flex justify-content-center align-items-center">
+                            <i class="bi bi-check-square h1 text-light"></i>
+                        </div>
+                    </div>
+                    <div id="denyCreateRequest-<%=createRequest.id %>" class="card mb-2 mx-1 col-sm-4 col-lg-3"
+                        style="background-color: #BB2D3B; display: none;">
+                        <div class="h-100 w-100 d-flex justify-content-center align-items-center">
+                            <i class="bi bi-x-square h1 text-light"></i>
+                        </div>
+                    </div>
+                    <% }) %>
+            </div>
+        </div>
+    </div>
+
+    <!-- USER ADMINISTRATION -->
+    <div class="col mt-4" id="userAdministrationDiv" style="display: none;">
+        <div class="mt-2 px-3" style="display: block;">
+            <div class="d-flex justify-content-between align-items-center">
+                <h3>Gestion des utilisateurs</h3>
+            </div>
+            <hr>
+            <div class="col-12 d-flex justify-content-center flex-wrap">
+                <% usersData.forEach((userData, index)=> { %>
+                    <% if (userData.id !=userId ) { %>
+                        <div id="userAdministration-<%=userData.id %>" class="card mb-2 p-4 mx-1 col-sm-4 col-lg-3">
+                            <h5 class="card-title ml-4 mb-auto pl-4" id="userAdministrationTitle-<%=userData.id %>">
+                                <%= userData.lname %>
+                                    <%= userData.fname %><span class="text-muted"></span>
+                            </h5>
+                            <div class="card-body pl-4 pb-0">
+
+                                <div>
+                                    <label class="card-text mb-1">
+                                        <strong>Organisation:</strong>
+                                    </label>
+                                    <% if (userData.name!=null ) { %>
+                                        <span>
+                                            <%= userData.name %>
+                                                <% if (userData.orgAccepted==0 ) { %>
+                                                    (Not accepted Yet)
+                                                    <% } else {%>
+                                                        (Accepted)
+                                                        <% } %>
+                                                            %>
+                                        </span>
+                                        <% } else { %>
+                                            <span>Aucune</span>
+                                            <% } %>
+                                </div>
+
+                                <div>
+                                    <label class="card-text mb-1">
+                                        <strong>Email:</strong>
+                                    </label>
+                                    <span>
+                                        <%= userData.email %>
+                                    </span>
+                                </div>
+                                <div>
+                                    <label class="card-text mb-1">
+                                        <strong>Telephone:</strong>
+                                    </label>
+                                    <span>
+                                        <%= userData.telephone %>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="mt-4 d-flex align-items-center justify-content-center">
+                                <% if (userData.role !=3) { %>
+                                    <button id="promoteAdmin-<%=userData.id %>"
+                                        class="btn btn-success mb-2 d-flex justify-content-center align-items-center w-25"
+                                        onclick="promoteAdmin('<%= userData.id %>')">
+                                        <i class="bi bi-arrow-up-square h3"></i>
+                                    </button>
+                                    <% } else { %>
+                                        <button id="promoteAdmin-<%=userData.id %>"
+                                            class="btn btn-success mb-2 d-flex justify-content-center align-items-center w-25"
+                                            onclick="promoteAdmin('<%= userData.id %>')" disabled>
+                                            <i class="bi bi-arrow-up-square h3"></i>
+                                        </button>
+                                        <% } %>
+                                            <button
+                                                class="btn btn-warning mb-2 mx-4 d-flex justify-content-center align-items-center w-25"
+                                                onclick="editUserModal('<%= userData.id %>', '<%= userData.email %>', '<%= userData.lname %>', '<%= userData.fname %>',
+                                    '<%= userData.telephone %>', '<%= userData.status %>', '<%= userData.role %>', '<%= userData.organisation%>', '<%= userData.orgAccepted %>')">
+                                                <i class="bi bi-pencil-square h3 text-white"></i>
+                                            </button>
+                                            <button
+                                                class="btn btn-danger mb-2 d-flex justify-content-center align-items-center w-25"
+                                                onclick="deleteUser('<%= userData.id %>')">
+                                                <i class="bi bi-x-square h3"></i>
+                                            </button>
+                            </div>
+                        </div>
+                        <div id="deleteUser-<%=userData.id %>" class="card mb-2 mx-1 col-sm-4 col-lg-3"
+                            style="background-color: #BB2D3B; display: none;">
+                            <div class="h-100 w-100 d-flex justify-content-center align-items-center">
+                                <i class="bi bi-x-square h1 text-light"></i>
+                            </div>
+                        </div>
+                        <% } %>
+                            <% }) %>
+            </div>
+        </div>
+    </div>
+
+    <!-- UPDATE USER -->
+    <div class="modal" id="editUserModal">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="editUserModalTitle"></h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body mb-4">
+                    <form id="editUserForm" class="col-md-9 mx-auto">
+                        <div class="form-group mb-3 mx-4">
+                            <label for="email">Email :</label>
+                            <input type="text" class="form-control" id="editUserEmail" name="email">
+                        </div>
+                        <div class="form-group mb-3 mx-4">
+                            <label for="lname">Nom :</label>
+                            <input type="text" class="form-control" id="editUserLname" name="lname">
+                        </div>
+                        <div class="form-group mb-3 mx-4">
+                            <label for="fname">Prénom :</label>
+                            <input type="text" class="form-control" id="editUserFname" name="fname">
+                        </div>
+                        <div class="form-group mb-3 mx-4">
+                            <label for="phone">Téléphone :</label>
+                            <input type="text" class="form-control" id="editUserPhone" name="phone">
+                        </div>
+                        <div class="form-group mb-3 mx-4">
+                            <label for="role">Role :</label>
+                            <select class="form-control" name="roleSelect" id="editUserRoleSelect">
+                                <!-- options pour sélectionner un rôle existant -->
+                                <% roles.forEach((role)=> { %>
+                                    <option value=<%=role.id %>>
+                                        <%=role.role%>
+                                    </option>
+                                    <% }) %>
+                            </select>
+                        </div>
+                        <div class="form-group mb-3 mx-4">
+                            <label for="org">Organisation :</label>
+                            <select class="form-control" name="orgSelect" id="editUserOrgSelect">
+                                <!-- options pour sélectionner une organisationexistant -->
+                                <% orgs.forEach((org)=> { %>
+                                    <option value=<%=org.siren %>>
+                                        <%=org.name%>
+                                    </option>
+                                    <% }) %>
+                            </select>
+                        </div>
+
+                        <div class="form-group mb-3 mx-4">
+                            <label for="editUserStatus">Statut du compte :</label>
+                            <input type="checkbox" class="form-check-input mx-2" id="editUserStatus" name="status">
+                        </div>
+
+                        <div class="form-group mb-3 mx-4">
+                            <label for="editUserOrgAccepted">Compte accepté par l'organisation :</label>
+                            <input type="checkbox" class="form-check-input mx-2" id="editUserOrgAccepted"
+                                name="orgAccepted">
+                        </div>
+
+                        <div class="form-group mb-3 mx-4">
+                            <label for="oldPwd">Ancien mot de passe :</label>
+                            <input type="password" class="form-control" id="editUserOldPwd" name="oldPwd">
+                        </div>
+
+                        <div class="form-group mb-3 mx-4">
+                            <label for="newPwd">Nouveau mot de passe :</label>
+                            <input type="password" class="form-control" id="editUserNewPwd" name="newPwd">
+                        </div>
+
+                        <div class="form-group mb-3 mx-4">
+                            <label for="newPwdBis">Confirmer le mot de passe :</label>
+                            <input type="password" class="form-control" id="editUserNewPwdBis" name="newPwdBis">
+                        </div>
+
+                        <div class="d-flex justify-content-center">
+                            <button id="editUserSubmit" type="submit" class="btn btn-success">Modifier
+                                l'utilisateur</button>
+                        </div>
+                        <div class="d-flex justify-content-center align-items-center" role="status">
+                            <div id="editUserSpinner" class="spinner-border" style="display:none;">
+                                <span class="sr-only"></span>
+                            </div>
+                        </div>
+                        <div id="editUserConfirmationMessage"></div>
+                    </form>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" id="editUserClose" class="btn btn-secondary"
+                        data-bs-dismiss="modal">Fermer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Bootstrap JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.6.4.js"
+        integrity="sha256-a9jBBRygX1Bh5lt8GZjXDzyOB+bWve9EiO7tROUtj/E=" crossorigin="anonymous"></script>
+    <!-- Link to Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.min.js"
+        integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+        crossorigin="anonymous"></script>
+    <script>
+
+        $(document).ready(function () {
+            var url = window.location.href;
+            if (url.indexOf("#createRequests") !== -1) {
+                showCreateRequests();
+            }
+            if (url.indexOf("#userAdministration") !== -1) {
+                showUserAdministration();
+            }
+        });
+
+        function showUserAdministration() {
+            document.getElementById("userAdministrationDiv").style.display = "";
+            document.getElementById("createRequestsDiv").style.display = "none";
+        }
+        function showCreateRequests() {
+            document.getElementById("createRequestsDiv").style.display = "";
+            document.getElementById("userAdministrationDiv").style.display = "none";
+        }
+
+        function acceptCreateRequest(userId) {
+
+            var serializedData = "userId=" + userId;
+            $.ajax({
+                url: '/admin/acceptCreateRequest',
+                type: 'POST',
+                data: serializedData,
+                success: function (response) {
+                    // Affichage du message de confirmation
+                    $('#createRequest-' + userId).hide()
+                    $('#acceptCreateRequest-' + userId).show()
+                    $('#acceptCreateRequest-' + userId).add('fade-in')
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    console.error(errorThrown);
+                }
+            });
+        }
+
+        function denyCreateRequest(userId) {
+
+            var serializedData = "userId=" + userId;
+            $.ajax({
+                url: '/admin/denyCreateRequest',
+                type: 'POST',
+                data: serializedData,
+                success: function (response) {
+                    // Affichage du message de confirmation
+                    $('#createRequest-' + userId).hide()
+                    $('#denyCreateRequest-' + userId).show()
+                    $('#denyCreateRequest-' + userId).add('fade-in')
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    console.error(errorThrown);
+                }
+            });
+        }
+
+        function promoteAdmin(userId) {
+            $('#promoteAdmin-' + userId).addClass('disabled');
+
+            var serializedData = "userId=" + userId;
+            $.ajax({
+                url: '/admin/promoteAdmin',
+                type: 'POST',
+                data: serializedData,
+                success: function (response) {
+                    // Affichage du message de confirmation
+                    $('#promoteAdmin-' + userId).show();
+                    $('#promoteAdmin-' + userId).add('fade-in');
+                    console.log('promoteAdmin-' + userId);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    console.error(errorThrown);
+                }
+            });
+        }
+
+        function editUserModal(userID, email, lname, fname, telephone, statut, role, organisation, orgAccepted) {
+            $('#editUserModalTitle').text(lname + " " + fname);
+
+            $('#editUserModal').modal('show');
+
+            $('#editUserEmail').val(email);
+            $('#editUserLname').val(lname);
+            $('#editUserFname').val(fname);
+            $('#editUserPhone').val(telephone);
+            $('#editUserRoleSelect').val(role);
+            $('#editUserOrgSelect').val(organisation);
+            $('#editUserOldPwd').val('');
+            $('#editUserNewPwd').val('');
+            $('#editUserNewPwdBis').val('');
+            $('#editUserConfirmationMessage').text('');
+
+            if (statut == 1) {
+                $('#editUserStatus').prop('checked', true);
+            } else {
+                $('#editUserStatus').prop('checked', false);
+            }
+
+            if (orgAccepted == 1) {
+                $('#editUserOrgAccepted').prop('checked', true);
+            } else {
+                $('#editUserOrgAccepted').prop('checked', false);
+            }
+
+            console.log("COUCOCU")
+
+            $(document).ready(function () {
+                $('#editUserForm').submit(function (e) {
+                    e.preventDefault(); // Empêche le rechargement de la page par défaut
+
+                    var serializedData = $("#editUserForm").serialize();
+                    serializedData += "&userID=" + userID;
+
+                    // Envoi de la requête AJAX
+                    $.ajax({
+                        url: '/admin/editUser',
+                        type: 'POST',
+                        data: serializedData,
+                        success: function (response) {
+                            // Affichage du message de confirmation
+                            $('#editUserConfirmationMessage').text('La candidature a été modifiée avec succès !');
+                            $('#editUserClose').css('display', 'none');
+                            $('#editUserSubmit').css('display', 'none');
+                            $('#editUserSpinner').css('display', 'block');
+                            setTimeout(function () {
+                                location.reload();
+                            }, 1000); // wait for 3 seconds before reloading the page
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            console.error(errorThrown);
+                            var errorMessage = jqXHR.responseText;
+                            $('#editUserConfirmationMessage').text('Une erreur est survenue. ' + errorMessage);
+                        }
+                    });
+                });
+            });
+        }
+
+        function deleteUser(userId) {
+
+            var serializedData = "userId=" + userId;
+            $.ajax({
+                url: '/admin/deleteUser',
+                type: 'POST',
+                data: serializedData,
+                success: function (response) {
+                    // Affichage du message de confirmation
+                    $('#userAdministration-' + userId).hide()
+                    $('#deleteUser-' + userId).show()
+                    $('#deleteUser-' + userId).add('fade-in')
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    console.error(errorThrown);
+                }
+            });
+        }
+
+    </script>
+
+</body>
+
+</html>

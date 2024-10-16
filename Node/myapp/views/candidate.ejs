@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Espace Candidat</title>
+  <link rel="stylesheet" href="">
+  <!-- Liens vers les fichiers CSS de Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <!-- Container wrapper -->
+    <div class="container-fluid">
+      <!-- Navbar brand -->
+      <a class="navbar-brand mt-2 mt-lg-0" href="#">
+        <img src="img/favicon.png" height="50" alt="MDB Logo" loading="lazy" />
+      </a>
+      <!-- Left links -->
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <div class="d-flex align-items-center">
+          <li class="nav-item nav-link text-light">
+            <strong>
+              <%=orgName %>
+            </strong>
+          </li>
+          <li class="nav-item nav-link text-light">
+            <strong>
+              <%=userData.lname %>
+                <%=userData.fname %>
+            </strong>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#jobOffers" onclick="showOffers()">Offres de postes</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#applications" onclick="showApplications()">Candidatures</a>
+          </li>
+        </div>
+      </ul>
+      <!-- Left links -->
+
+      <!-- Right elements -->
+      <div class="d-flex align-items-center">
+        <!-- Icon -->
+        <a class="link-secondary me-3" href="#">
+          <i class="fas fa-shopping-cart"></i>
+        </a>
+        <% if (userRole=="Candidate" ) { %>
+          <% if (userData.organisation==null && userData.orgAccepted==0 ) { %>
+            <a class="btn btn-secondary ms-3" href="#" role="button" data-bs-toggle="modal"
+              data-bs-target="#recruteurModal">Devenir Recruteur</a>
+            <% } else if (userData.organisation !=null && userData.orgAccepted==0 ){ %>
+              <a class="btn btn-secondary ms-3" href="#" role="button">Une demande a déja été envoyée..</a>
+              <% } %>
+                <% } if (userRole=="Recruiter" || userRole=="Admin" ) { %>
+                  <a class="btn btn-secondary ms-3" href="/recruiter" role="button">Espace Recruteur</a>
+                  <% } if (userRole=="Admin" ) { %>
+                    <a class="btn btn-secondary ms-3" href="/admin" role="button">Espace Administrateur</a>
+                    <% } %>
+                      <a href="/logout"><button class="btn btn-danger ms-3">Logout</button></a>
+      </div>
+      <!-- Modal of becoming a recruiter -->
+      <div class="modal fade" id="recruteurModal" tabindex="-1" aria-labelledby="recruteurModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="recruteurModalLabel">Formulaire de Recruteur</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <!-- Votre formulaire ici -->
+              <form id="addOrgform" class="mx-auto">
+                <!-- Les champs du formulaire -->
+                <div class="mb-3">
+                  <label for="organisation" class="form-label">Organisation :</label>
+                  <select required class="form-control" name="organisation" id="chooseOrgSelect">
+                    <option value="-1">Nouvelle organisation</option>
+                    <option value="0" selected>Veuillez sélectionner une organisation</option>
+                    <!-- Options pour sélectionner une organisation existante -->
+                    <% organisations.forEach((org)=> {%>
+                      <option value="<%= org.siren %>">
+                        <%= org.name %>
+                      </option>
+                      <% }) %>
+                  </select>
+                </div>
+                <div id="chooseOrgNewDiv" class="p-2"
+                  style="display:none; background-color: rgba(210, 210, 210, 0.43);">
+                  <div class="form-group mb-3 mx-4">
+                    <label for="newOrgSiren">SIREN de l'organisation :</label>
+                    <input type="text" class="form-control" name="newOrgSiren" id="newOrgSiren" placeholder="Siren">
+                  </div>
+                  <div class="form-group mb-3 mx-4">
+                    <label for="newOrgName">Nom de l'organisation :</label>
+                    <input type="text" class="form-control" name="newOrgName" id="newOrgName" placeholder="Nom">
+                  </div>
+                  <div class="form-group mb-3 mx-4">
+                    <label for="newOrgType">Type de l'organisation :</label>
+                    <select class="form-control" name="newOrgTypeSelect" id="newOrgTypeSelect">
+                      <option value="-1">Nouveau type d'organisation</option>
+                      <option value="0" selected>Veuillez selectionner un type d'organisation
+                      </option>
+                      <!-- options pour sélectionner un type de d'organisation existant -->
+                      <% typeOrgs.forEach((typeOrg)=> { %>
+                        <option value=<%=typeOrg.id %>>
+                          <%=typeOrg.type%>
+                        </option>
+                        <% }) %>
+                    </select>
+                  </div>
+                  <div id="newOrgTypeDiv" class="p-2"
+                    style="display:none; backgronewJobSheetDivund-color: rgba(210, 210, 210, 0.43);">
+                    <div class="form-group mb-3 mx-4">
+                      <label for="newOrgType">Nouveau Type d'organisation :</label>
+                      <input type="text" class="form-control" name="newOrgType" id="newOrgType"
+                        placeholder="Type d'organisation">
+                    </div>
+                  </div>
+                  <div class="form-group mb-3 mx-4">
+                    <label for="newOrgAddress">Adresse de l'organisation :</label>
+                    <input type="text" class="form-control" name="newOrgAddress" id="newOrgAddress"
+                      placeholder="Adresse">
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button id="chooseOrgSubmit" type="submit" class="btn btn-success">Envoyer</button>
+                </div>
+                <div class="d-flex justify-content-center align-items-center" role="status">
+                  <div id="chooseOrgSpinner" class="spinner-border" style="display:none;">
+                    <span class="sr-only"></span>
+                  </div>
+                </div>
+                <div id="addOrgConfirmationMessage"></div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Right elements -->
+    <!-- Container wrapper -->
+  </nav>
+  <!-- Navbar -->
+  <!-- Main Content -->
+  <div class="container-fluid">
+    <div class="row" id="Offers">
+      <!-- LEFT MENU -->
+      <div class="col-2 bg-light">
+        <div id="filterSection" class="card mb-2 mt-3 p-4">
+          <div class="col mb-5" style="display: block;">
+            <h3 class="text-center">Filtrer</h3>
+            <hr />
+
+            <div class="form-group mb-2">
+              <label for="job-type">Type de métier</label>
+              <select class="form-control" id="job-type">
+                <option value="">Tous</option>
+                <option value="IT">Informatique</option>
+                <option value="marketing">Marketing</option>
+                <option value="sales">Ventes</option>
+              </select>
+            </div>
+
+            <div class="form-group mb-2">
+              <label for="job-location">Localisation</label>
+              <select class="form-control" id="job-location">
+                <option value="">Tous</option>
+                <option value="paris">Paris</option>
+                <option value="london">Londres</option>
+                <option value="new-york">New York</option>
+                <option value="tokyo">Tokyo</option>
+              </select>
+            </div>
+
+            <div class="form-group mb-2">
+              <label for="searchInput">Rechercher</label>
+              <input type="text" class="form-control" id="searchInput">
+            </div>
+            <div class="form-group mb-2">
+              <label for="statusSelect">Statut</label>
+              <select class="form-control" id="statusSelect">
+                <option value="">Tous</option>
+                <option value="Open">Publiée</option>
+                <option value="Closed">Expirée</option>
+                <option value="Pending">Non publiée</option>
+              </select>
+            </div>
+
+            <div class="d-flex align-items-center mb-2">
+              <button class="btn btn-secondary" id="expired-button">
+                <span id="button-expired-icon-checked"><i class="bi bi-check-square-fill"></i></span>
+                <span id="button-expired-icon-unchecked" style="display: none;"><i class="bi bi-square"></i></span>
+                <span id="button-text">Offres expirées</span>
+              </button>
+            </div>
+
+            <button type="submit" class="btn btn-primary mt-3 mt-3" onclick="filterJobs()">Apply
+              Filters</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="col mt-4">
+        <h3>Offres</h3>
+        <hr>
+        <!-- Add your job listings here -->
+        <div class="col-md-12">
+          <div class="row">
+            <% const validJobOffers=jobOffers.filter(jobOffer=> {
+              const date = Date.parse(jobOffer.endDate);
+              const endDate = new Date(date);
+              const todayDate = new Date();
+              if (endDate < todayDate) { return false; } if (applications.find(application=> application.jobOffer ===
+                jobOffer.number)) {
+                return false;
+                }
+                return true;
+                });
+
+                validJobOffers.forEach(jobOffer => {
+                const date = Date.parse(jobOffer.endDate);
+                const endDate = new Date(date);
+                const jobSheet = jobSheets.find(jobSheet => jobSheet.id === jobOffer.jobSheet);
+                const jobType = jobTypes.find(jobType => jobType.id === jobSheet.jobType);
+                const organisation = organisations.find(organisation => organisation.siren === jobSheet.organisation);
+                const statut = status.find(status => status.id === jobSheet.status);
+                const documentLabels={ "LM": "Lettre de Motivation" , "CV": "CV" , "CNI": "Carte d'identité"};
+                var documents=jobOffer.requestedDocuments;
+                var documentLabelsString="";
+                var documentsArray=JSON.parse(documents);
+                // check if docType is an object or a string
+                if (typeof documentsArray === 'string') {
+                documentsArray = [documentsArray]; // convert to array
+                }
+                for (var i=0; i < documentsArray.length; i++) { var documentLabel=documentLabels[documentsArray[i]]; if
+                  (documentLabel) { if (documentLabelsString !=="" ) { documentLabelsString +=", " ; }
+                  documentLabelsString +=documentLabel; } } %>
+                  <div class="col-md-6">
+                    <div class="card mb-4">
+                      <h5 class="card-title ms-3 mt-3 mb-auto">
+                        <strong>
+                          <%= jobSheet.title %>
+                        </strong> - <%= organisation.name %>
+                      </h5>
+                      <div class="row no-gutters">
+                        <div class="col-md-6 mb-1">
+                          <div class="card-body pl-4 pb-0">
+                            <p class="card-text mb-1"><strong>Type de métier: </strong>
+                              <%= jobType.jobType %>
+                            </p>
+                            <p class="card-text mb-1"><strong>Localisation: </strong>
+                              <%= jobSheet.location %>
+                            </p>
+                            <p class="card-text mb-1"><strong>Salaire (€/an): </strong>
+                              <%= jobSheet.salary %> € par an
+                            </p>
+                            <p class="card-text mb-1"><strong>Date butoire: </strong>
+                              <%= endDate.toLocaleDateString("fr") %>
+                            </p>
+                          </div>
+                        </div>
+                        <div class="col-md-6">
+                          <div class="card-body pb-0">
+                            <p class="card-text mb-1"><strong>Statut: </strong>
+                              <%= statut.status %>
+                            </p>
+                            <p class="card-text mb-1"><strong>Rythme: </strong>
+                              <%= jobSheet.rythme %>
+                            </p>
+                            <p class="card-text mb-1"><strong>Responsable: </strong>
+                              <%= jobSheet.manager %>
+                            </p>
+                          </div>
+                        </div>
+                        <div class="col-md-12">
+                          <p class="card-text mb-0 mt-0 mx-3"><strong>Documents demandés: </strong>
+                            <%= documentLabelsString %>
+                          </p>
+                          <p class="card-text mx-3 mb-3"><strong>Description:</strong>
+                            <% if (jobSheet.description.length> 500) { %>
+                              <%= jobSheet.description.slice(0, 500) + " ..." %>
+                                <% } else { %>
+                                  <%= jobSheet.description %>
+                                    <% } %>
+                          </p>
+                        </div>
+                        <div>
+                          <a href="#" class="btn btn-primary col-md-12" data-bs-toggle="modal"
+                            data-bs-target="#applicationModal<%= jobOffer.number %>">Apply</a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="modal fade" id="applicationModal<%= jobOffer.number %>" tabindex="-1"
+                    aria-labelledby="applicationModalLabel<%= jobOffer.number %>" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-xl">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="applicationModalLabel<%= jobOffer.number %>">
+                            <%= jobSheet.title %>
+                          </h5>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                          <p><strong>Description:</strong>
+                            <%= jobSheet.description %>
+                          </p>
+                          <form method="post" action="/candidate/apply" enctype="multipart/form-data">
+                            <% documentsArray.forEach(docType=> { %>
+                              <div class="mb-3">
+                                <label for="<%= docType %>" class="form-label"><strong>
+                                    <%= documentLabels[docType] %>
+                                  </strong></label>
+                                <input type="file" name="<%= docType %>" accept="image/*,application/pdf" required
+                                  class="form-control">
+                              </div>
+                              <% }); %>
+                                <input type="hidden" name="jobOffer" value="<%= jobOffer.number %>">
+                                <div class="modal-footer">
+                                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                  <button type="submit" class="btn btn-primary">Submit</button>
+                                </div>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <% }) %>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+    <div class="col mt-4" id="Applications" style="display: none;">
+      <h3>Candidatures</h3>
+      <hr>
+      <div class="mt-2 px-3">
+        <div class="col-md-12">
+          <% applications.forEach((application)=> {
+            const user = 1;
+            if (!jobOffers.find(jobOffer => jobOffer.number === application.jobOffer)) {
+            return;
+            }
+            const jobOffer = jobOffers.find(jobOffer => jobOffer.number === application.jobOffer);
+            const date = Date.parse(application.date);
+            const applicationDate = new Date(date);
+            const jobSheet = jobSheets.find(jobSheet => jobSheet.id === jobOffer.jobSheet);
+            const jobType = jobTypes.find(jobType => jobType.id === jobSheet.jobType);
+            const organisation = organisations.find(organisation => organisation.siren === jobSheet.organisation);
+            const statut = status.find(status => status.id === jobSheet.status);
+            const pieces = piecesList.filter(piece => piece.application == application.id);
+            %>
+            <div class="card mb-2 p-4">
+              <div class="row">
+                <div class="col-11">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="card-title ms-3 mt-3 mb-auto">
+                      <strong>
+                        <%= jobSheet.title %>
+                      </strong> - <%= organisation.name %>
+                    </h5>
+                    <h6 class="me-4 mt-3 text-muted">
+                      <%= applicationDate.toLocaleDateString("fr") %>
+                    </h6>
+                  </div>
+                  <div class="row no-gutters">
+                    <div class="col-6 mb-1">
+                      <div class="card-body pl-4 pb-0">
+                        <p class="card-text mb-1"><strong>Type de métier: </strong>
+                          <%= jobType.jobType %>
+                        </p>
+                        <p class="card-text mb-1"><strong>Localisation: </strong>
+                          <%= jobSheet.location %>
+                        </p>
+                        <p class="card-text mb-1"><strong>Salaire (€/an): </strong>
+                          <%= jobSheet.salary %> € par an
+                        </p>
+                      </div>
+                    </div>
+                    <div class="col-6">
+                      <div class="card-body pb-0">
+                        <p class="card-text mb-1"><strong>Statut: </strong>
+                          <%= statut.status %>
+                        </p>
+                        <p class="card-text mb-1"><strong>Rythme: </strong>
+                          <%= jobSheet.rythme %>
+                        </p>
+                        <p class="card-text mb-1"><strong>Responsable: </strong>
+                          <%= jobSheet.manager %>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-9">
+                    <p class="card-text mx-3 mt-4 mb-0"><strong>Pièces envoyées:</strong>
+                      <% if (pieces.length> 0) {
+                        pieceList = JSON.parse(JSON.stringify(pieces));
+                        for (let i = 0; i < pieceList.length; i++) {%>
+                          <%= pieceList[i].name.split('.').slice(0, -1).join('.')%>
+                            <% if (i < pieceList.length - 1) {%>
+                              <%="-"%>
+                                <%} } } else { %>
+                                  <%= "Aucune pièce envoyée" %>
+                                    <% } %>
+                    </p>
+                    <p class="card-text mt-0 mx-3 mb-3"><strong>Description:</strong>
+                      <%= jobSheet.description %>
+                    </p>
+                  </div>
+
+                </div>
+                <div class="col-1 d-flex align-items-center flex-column justify-content-center">
+                  <button class="btn btn-warning mb-2 d-flex justify-content-center align-items-center w-75"
+                    onclick="updateApplicationModal('<%= application.id %>', '<%= jobSheet.title %>', '<%= organisation.name %>', '<%=jobOffer.requestedDocuments %>')">
+                    <i class="bi bi-pencil h3"></i>
+                  </button>
+
+                  <button class="btn btn-danger mb-2 d-flex justify-content-center align-items-center w-75"
+                    onclick="deleteApplicationModal('<%= application.id %>')">
+                    <i class="bi bi-trash h3"></i>
+                  </button>
+                </div>
+
+              </div>
+            </div>
+            <% }) %>
+        </div>
+      </div>
+    </div>
+
+    <!-- UPDATE APPLICATION -->
+    <div class="modal" id="updateApplicationModal">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title" id="updateApplicationModalTitle"></h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <form id="updateApplicationForm" class="col-md-8 mx-auto">
+              <div class="form-group mb-3">
+                <div id="documentsContainer"></div>
+              </div>
+
+              <div class="d-flex justify-content-center mb-1">
+                <button id="updateApplicationSubmit" type="submit" class="btn btn-success">Modifier
+                  la candidature</button>
+              </div>
+              <div class="d-flex justify-content-center align-items-center" role="status">
+                <div id="updateApplicationSpinner" class="spinner-border" style="display:none;">
+                  <span class="sr-only"></span>
+                </div>
+              </div>
+              <div id="updateApplicationConfirmationMessage"></div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" id="updateApplicationClose" class="btn btn-secondary"
+              data-bs-dismiss="modal">Fermer</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DELETE APPLICATION -->
+    <div class="modal" id="deleteApplicationModal">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Confirmer</h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <p>Attention ! Vous êtes sur le point de supprimer toutes les pièces liées à cette offre !</p>
+            <p>Confirmer la suppression ?</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Non</button>
+            <button type="button" class="btn btn-danger" id="deleteApplication">Oui</button>
+          </div>
+          <div class="d-flex justify-content-center align-items-center" role="status">
+            <div id="deleteApplicationSpinner" class="spinner-border" style="display:none;">
+              <span class="sr-only"></span>
+            </div>
+          </div>
+          <div id="deleteApplicationConfirmationMessage"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</body>
+
+</html>
+<script src="https://code.jquery.com/jquery-3.6.4.js" integrity="sha256-a9jBBRygX1Bh5lt8GZjXDzyOB+bWve9EiO7tROUtj/E="
+  crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
+  integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script>
+<script>
+  $(document).ready(function () {
+    var url = window.location.href;
+
+    if (url.indexOf("#applications") !== -1) {
+      showApplications();
+    }
+  });
+  $(document).ready(function () {
+    $('#addOrgform').submit(function (e) {
+      e.preventDefault(); // Empêche le rechargement de la page par défaut
+
+      // Récupérer la valeur du champ select pour l'organisation choisie
+      var selectedOrg = document.getElementById("chooseOrgSelect");
+      var orgTypeSelect = document.getElementById("newOrgTypeSelect");
+      // Vérifier si une nouvelle organisation doit être ajoutée
+      if (selectedOrg.value === "0") {
+        // Il faut sélectionner une autre organisation
+        $('#addOrgConfirmationMessage').text('Veuillez sélectionner une organisation');
+        return;
+      }
+      if (selectedOrg.value === "-1" && orgTypeSelect.value === "0") {
+        // Il faut sélectionner un type d'organisation
+        $('#addOrgConfirmationMessage').text('Veuillez sélectionner un type d\'organisation');
+        return;
+      }
+
+      // Créer un objet contenant les données à envoyer
+      var formData = {
+        selectedOrg: selectedOrg.value,
+        newOrgSiren: document.getElementById("newOrgSiren").value,
+        newOrgName: document.getElementById("newOrgName").value,
+        selectedOrgType: orgTypeSelect.value,
+        newOrgType: document.getElementById("newOrgType").value,
+        newOrgAddress: document.getElementById("newOrgAddress").value
+      };
+
+      // Envoi de la requête AJAX pour ajouter l'organisation
+      $.ajax({
+        url: '/candidate/assignRecruiter',
+        type: 'POST',
+        data: formData,
+        success: function (response) {
+          // Afficher le message de confirmation
+          $('#addOrgConfirmationMessage').text('La demande a été ajoutée avec succès !');
+          $('#chooseOrgSubmit').css('display', 'none');
+          $('#chooseOrgSpinner').css('display', 'block');
+          setTimeout(function () {
+            location.reload();
+          }, 1000); // wait for 1 second before reloading the page
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+          console.error(errorThrown);
+          $('#addOrgConfirmationMessage').text('Une erreur est survenue, veuillez réessayer plus tard.');
+        }
+      });
+    });
+  });
+
+
+  function showOffers() {
+    document.getElementById("Applications").style.display = "none";
+    document.getElementById("Offers").style.display = "";
+  }
+
+  function showApplications() {
+    document.getElementById("Applications").style.display = "";
+    document.getElementById("Offers").style.display = "none";
+  }
+
+  var OrgTypeSelect = document.getElementById("newOrgTypeSelect");
+  var newOrgTypeDiv = document.getElementById("newOrgTypeDiv");
+  addSelectListener(OrgTypeSelect, newOrgTypeDiv);
+  var OrgSelect = document.getElementById("chooseOrgSelect");
+  var newOrgDiv = document.getElementById("chooseOrgNewDiv");
+  addSelectListener(OrgSelect, newOrgDiv);
+
+  function addSelectListener(selectElem, newElem) {
+    selectElem.addEventListener("change", function () {
+      if (selectElem.selectedIndex === 0) {
+        newElem.style.display = "block";
+        setInputsRequired(newElem, true)
+      } else {
+        newElem.style.display = "none";
+        setInputsRequired(newElem, false)
+      }
+    });
+  }
+
+  function setInputsRequired(divElem, value) {
+    var inputs = divElem.getElementsByTagName("input");
+    for (var i = 0; i < inputs.length; i++) {
+      inputs[i].required = value;
+    }
+  }
+
+  // UPDATE APPLICATION
+  function updateApplicationModal(applicationId, applicationJob, applicationOrg, documentsArray) {
+    $('#updateApplicationModalTitle').text(applicationJob + " - " + applicationOrg);
+
+    $('#updateApplicationModal').modal('show');
+
+
+    const documentLabels = { "LM": "Lettre de Motivation", "CV": "CV", "CNI": "Carte d'identité" };
+
+    var container = $('#documentsContainer');
+    container.empty();
+
+    var documentsArray = JSON.parse(documentsArray);
+    if (typeof documentsArray === 'string') {
+      documentsArray = [documentsArray]; // convert to array
+    }
+    if (documentsArray.length > 1) {
+      documentsArray.forEach(function (docType) {
+        var div = $('<div>').addClass('mb-3');
+
+        var label = $('<label>').attr('for', docType).addClass('form-label').html('<strong>' + documentLabels[docType] + '</strong>');
+
+        var input = $('<input>').attr({
+          type: 'file',
+          name: docType,
+          accept: 'image/\*,application/pdf',
+          required: true
+        }).addClass('form-control');
+
+        div.append(label);
+        div.append(input);
+        container.append(div);
+      });
+    } else {
+      var div = $('<div>').addClass('mb-3');
+
+      var label = $('<label>').attr('for', documentsArray).addClass('form-label').html('<strong>' + documentLabels[documentsArray] + '</strong>');
+
+      var input = $('<input>').attr({
+        type: 'file',
+        name: documentsArray,
+        accept: 'image/\*,application/pdf',
+        required: true
+      }).addClass('form-control');
+
+      div.append(label);
+      div.append(input);
+      container.append(div);
+    }
+
+    $(document).ready(function () {
+      $('#updateApplicationForm').submit(function (e) {
+        e.preventDefault(); // Empêche le rechargement de la page par défaut
+
+        // Création d'un objet FormData pour envoyer les fichiers
+        var formData = new FormData(this);
+        formData.append('applicationId', applicationId);
+        // Envoi de la requête AJAX
+        $.ajax({
+          url: '/candidate/updateApplication',
+          type: 'POST',
+          data: formData,
+          processData: false, // N'effectue pas de traitement sur les données
+          contentType: false,
+          success: function (response) {
+            // Affichage du message de confirmation
+            $('#updateApplicationConfirmationMessage').text('La candidature a été modifiée avec succès !');
+            $('#updateApplicationClose').css('display', 'none');
+            $('#updateApplicationSubmit').css('display', 'none');
+            $('#updateApplicationSpinner').css('display', 'block');
+            setTimeout(function () {
+              location.reload();
+            }, 1000); // wait for 3 seconds before reloading the page
+          },
+          error: function (jqXHR, textStatus, errorThrown) {
+            console.error(errorThrown);
+            $('#updateApplicationConfirmationMessage').text('Une erreur est survenue, veuillez réessayer plus tard.');
+          }
+        });
+      });
+    });
+  }
+
+  // DELETE JOB OFFER
+  function deleteApplicationModal(applicationId) {
+    $('#deleteApplicationModal').modal('show');
+
+    $('#deleteApplication').on('click', function () {
+      // Envoi de la requête AJAX
+      var serializedData = "&applicationId=" + applicationId;
+      $.ajax({
+        url: '/candidate/deleteApplication',
+        type: 'POST',
+        data: serializedData,
+        success: function (response) {
+          // Affichage du message de confirmation
+          $('#deleteApplicationConfirmationMessage').text('L\'offre a été supprimée avec succès !');
+          $('#deleteApplicationClose').css('display', 'none');
+          $('#deleteApplicationSubmit').css('display', 'none');
+          $('#deleteApplicationSpinner').css('display', 'block');
+          setTimeout(function () {
+            location.reload();
+          }, 1000); // wait for 3 seconds before reloading the page
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+          console.error(errorThrown);
+          $('#deleteApplicationConfirmationMessage').text('Une erreur est survenue, veuillez réessayer plus tard.');
+        }
+      });
+    });
+  }
+</script>

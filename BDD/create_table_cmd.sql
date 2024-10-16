@@ -1,0 +1,111 @@
+# Drop all tables
+DROP TABLE IF EXISTS Piece;
+DROP TABLE IF EXISTS Application;
+DROP TABLE IF EXISTS JobOffer;
+DROP TABLE IF EXISTS JobSheet;
+DROP TABLE IF EXISTS Users;
+DROP TABLE IF EXISTS Organisation;
+DROP TABLE IF EXISTS Role;
+DROP TABLE IF EXISTS TypeOrg;
+DROP TABLE IF EXISTS JobType;
+DROP TABLE IF EXISTS Status;
+
+# Create new tables
+CREATE TABLE Role (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  role VARCHAR(255) NOT NULL,
+  UNIQUE (typeOrg)
+);
+
+CREATE TABLE TypeOrg (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  type VARCHAR(255) NOT NULL,
+  UNIQUE (type)
+);
+
+CREATE TABLE Organisation (
+  siren BIGINT PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  typeOrg INT NOT NULL,
+  address VARCHAR(255) NOT NULL,
+  FOREIGN KEY (typeOrg) REFERENCES TypeOrg(id)
+);
+
+CREATE TABLE Users (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  email VARCHAR(255) NOT NULL,
+  lname VARCHAR(255) NOT NULL,
+  fname VARCHAR(255) NOT NULL,
+  password VARCHAR(255) NOT NULL,
+  telephone VARCHAR(20) NOT NULL,
+  creationDate DATE NOT NULL,
+  status BOOLEAN NOT NULL,
+  role INT NOT NULL,
+  organisation BIGINT,
+  orgAccepted BOOLEAN NOT NULL,
+  FOREIGN KEY (role) REFERENCES Role(id),
+  FOREIGN KEY (organisation) REFERENCES Organisation(siren),
+  UNIQUE (email)
+);
+
+CREATE TABLE RememberToken (
+  token VARCHAR(255) PRIMARY KEY,
+  user INT NOT NULL,
+  FOREIGN KEY (user) REFERENCES Users(id)
+);
+
+CREATE TABLE Status (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  status VARCHAR(255) NOT NULL,
+  UNIQUE (status)
+);
+
+CREATE TABLE JobType (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  jobType VARCHAR(255) NOT NULL,
+  UNIQUE (jobType)
+);
+
+CREATE TABLE JobSheet (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  organisation BIGINT NOT NULL,
+  title VARCHAR(255) NOT NULL,
+  status INT NOT NULL,
+  manager VARCHAR(255) NOT NULL,
+  jobType INT NOT NULL,
+  location VARCHAR(255) NOT NULL,
+  rythme VARCHAR(255) NOT NULL,
+  salary INT NOT NULL,
+  description TEXT NOT NULL,
+  FOREIGN KEY (organisation) REFERENCES Organisation(siren),
+  FOREIGN KEY (status) REFERENCES Status(id),
+  FOREIGN KEY (jobType) REFERENCES JobType(id)
+);
+
+
+CREATE TABLE JobOffer (
+  number INT PRIMARY KEY AUTO_INCREMENT,
+  jobSheet INT NOT NULL,
+  state VARCHAR(255) NOT NULL,
+  endDate DATE NOT NULL,
+  requestedDocuments TEXT NOT NULL,
+  FOREIGN KEY (jobSheet) REFERENCES JobSheet(id)
+);
+
+CREATE TABLE Application (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  user INT NOT NULL,
+  jobOffer INT NOT NULL,
+  date DATE NOT NULL,
+  FOREIGN KEY (user) REFERENCES Users(id),
+  FOREIGN KEY (jobOffer) REFERENCES JobOffer(number)
+);
+
+CREATE TABLE Piece (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  application INT NOT NULL,
+  name VARCHAR(255) NOT NULL,
+  data BLOB,
+  FOREIGN KEY (application) REFERENCES Application(id),
+  UNIQUE (typeOrg)
+);

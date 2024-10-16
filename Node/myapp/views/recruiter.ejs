@@ -1,0 +1,1387 @@
+<!DOCTYPE html>
+<html style="height: 100%;" lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Espace Recruteur</title>
+    <link rel="stylesheet" href="">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+
+<body style="height: 100%;">
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <!-- Container wrapper -->
+        <div class="container-fluid">
+            <!-- Navbar brand -->
+            <a class="navbar-brand mt-2 mt-lg-0" href="#">
+                <img src="img/favicon.png" height="50" alt="MDB Logo" loading="lazy" />
+            </a>
+            <!-- Left links -->
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <div class="d-flex align-items-center">
+                    <li class="nav-item nav-link text-light">
+                        <strong>
+                            <%=orgName %>
+                        </strong>
+                    </li>
+                    <li class="nav-item nav-link text-light">
+                        <strong>
+                            <%=userlname %>
+                                <%=userfname %>
+                        </strong>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#jobOffers" onclick="showOffers()">Offres de postes</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#jobSheets" onclick="showSheets()">Fiches de postes</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#joinRequests" onclick="showJoinRequests()">Demandes d'adhésion</a>
+                    </li>
+                </div>
+            </ul>
+            <!-- Left links -->
+
+            <!-- Right elements -->
+            <div class="d-flex align-items-center">
+                <!-- Icon -->
+                <a class="link-secondary me-3" href="#">
+                    <i class="fas fa-shopping-cart"></i>
+                </a>
+                <a class="btn btn-secondary ms-3" href="/candidate" role="button">Espace Candidat</a>
+                <% if (userRole=="Admin" ) { %>
+                    <a class="btn btn-secondary ms-3" href="/admin" role="button">Espace Administrateur</a>
+                    <% } %>
+                        <a href="/logout"><button class="btn btn-danger ms-3">Logout</button></a>
+
+            </div>
+            <!-- Right elements -->
+        </div>
+        <!-- Container wrapper -->
+    </nav>
+    <!-- Navbar -->
+    <div class="container-fluid h-100" id="offersAndSheets">
+        <div class="row">
+
+            <!-- LEFT MENU -->
+            <div class="col-2 bg-light">
+                <div id="filterSection" class="card mb-2 mt-3 p-4">
+                    <div class="col mb-5" style="display: block;">
+                        <h3 class="text-center">Filtrer</h3>
+                        <hr />
+
+                        <div class="form-group mb-2">
+                            <label for="job-type">Job Type</label>
+                            <select class="form-control" id="job-type">
+                                <option value="">All</option>
+                                <option value="full-time">Full-Time</option>
+                                <option value="part-time">Part-Time</option>
+                                <option value="contract">Contract</option>
+                                <option value="internship">Internship</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group mb-2">
+                            <label for="job-location">Location</label>
+                            <select class="form-control" id="job-location">
+                                <option value="">All</option>
+                                <option value="paris">Paris</option>
+                                <option value="london">London</option>
+                                <option value="new-york">New York</option>
+                                <option value="tokyo">Tokyo</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group mb-2">
+                            <label for="searchInput">Search</label>
+                            <input type="text" class="form-control" id="searchInput">
+                        </div>
+                        <div class="form-group mb-2">
+                            <label for="statusSelect">Status</label>
+                            <select class="form-control" id="statusSelect">
+                                <option value="">--All--</option>
+                                <option value="Open">Open</option>
+                                <option value="Closed">Closed</option>
+                                <option value="Pending">Pending</option>
+                            </select>
+                        </div>
+
+                        <div class="d-flex align-items-center mb-2">
+                            <button class="btn btn-secondary" id="expired-button">
+                                <span id="button-expired-icon-checked"><i class="bi bi-check-square-fill"></i></span>
+                                <span id="button-expired-icon-unchecked" style="display: none;"><i
+                                        class="bi bi-square"></i></span>
+                                <span id="button-text">Offres expirées</span>
+                            </button>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary mt-3 mt-3" onclick="filterJobs()">Apply
+                            Filters</button>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- SEE OFFERS -->
+            <div class="col-10 mt-4" id="jobOffersDiv">
+                <div class="mt-2 px-3" style="display: block;">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h3>Offres de postes</h3>
+                        <button class="btn btn-secondary ml-3" id="addJobOfferButton" onclick="showaddJobOffers()">
+                            <span id="button-add-icon"><i class="bi bi-plus-square"></i></span>
+                            <span id="button-text">Ajouter une offre</span>
+                        </button>
+                    </div>
+                    <hr>
+                    <div class="col-md-12">
+                        <% jobOffers.forEach((jobOffer, index)=> {
+                            const endDate = new Date(jobOffer.endDate);
+                            const jobSheet = jobSheets.find(jobSheet => jobSheet.id === jobOffer.jobSheet);
+                            const jobType = jobTypes.find(jobType => jobType.id === jobSheet.jobType);
+                            const jobStatus = status.find(jobStatus => jobStatus.id === jobSheet.status);
+                            %>
+
+                            <div class="card mb-2 p-4">
+                                <div class="row">
+                                    <div class="col-11">
+                                        <h5 class="card-title ml-4 mb-auto pl-4">
+                                            <%= jobSheet.title %><span class="text-muted"> -
+                                                    <%= jobOffer.state %>
+                                                </span>
+                                        </h5>
+
+                                        <div class="row no-gutters">
+                                            <div class="col-6 mb-1">
+                                                <div class="card-body pl-4 pb-0">
+                                                    <p class="card-text mb-1"><strong>Type de métier:</strong>
+                                                        <%= jobType.jobType %>
+                                                    </p>
+                                                    <p class="card-text mb-1"><strong>Statut:</strong>
+                                                        <%= jobStatus.status %>
+                                                    </p>
+                                                    <p class="card-text mb-1"><strong>Localisation:</strong>
+                                                        <%= jobSheet.location %>
+                                                    </p>
+                                                    <p class="card-text mb-1"><strong>Salaire (€/an):</strong>
+                                                        <%= jobSheet.salary %>
+                                                    </p>
+
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <div class="card-body pb-0">
+                                                    <p class="card-text mb-1"><strong>Date butoire:</strong>
+                                                        <%= endDate.toLocaleDateString("fr") %>
+                                                    </p>
+                                                    <p class="card-text mb-1"><strong>Rythme:</strong>
+                                                        <%= jobSheet.rythme %>
+                                                    </p>
+                                                    <p class="card-text mb-1"><strong>Responsable:</strong>
+                                                        <%= jobSheet.manager %>
+                                                    </p>
+                                                    <p class="card-text mb-1"><strong>Documents
+                                                            demandés:</strong>
+                                                        <%= jobOffer.requestedDocuments %>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-9">
+                                            <div class="card-body pb-0">
+                                                <p class="card-text mb-1"><strong>Description:</strong>
+                                                    <%= jobSheet.description %>
+                                                </p>
+                                            </div>
+                                        </div>
+
+
+                                    </div>
+                                    <div class="col-1 d-flex align-items-center flex-column justify-content-center">
+                                        <button
+                                            class="btn btn-primary mb-2 d-flex justify-content-center align-items-center w-75"
+                                            onclick="showApplicationModal(<%=jobOffer.number %>)">
+                                            <i class="bi bi-eye-fill h3"></i>
+                                        </button>
+
+                                        <button
+                                            class="btn btn-warning mb-2 d-flex justify-content-center align-items-center w-75"
+                                            onclick="updateJobOfferModal(<%=jobOffer.number %>, <%=jobOffer.jobSheet %>, '<%=jobSheet.title %>', '<%=jobOffer.endDate %>', '<%=jobOffer.requestedDocuments %>')">
+                                            <i class="bi bi-pencil h3"></i>
+                                        </button>
+
+                                        <button
+                                            class="btn btn-danger mb-2 d-flex justify-content-center align-items-center w-75"
+                                            onclick="deleteJobOfferModal(<%=jobOffer.number %>)">
+                                            <i class="bi bi-trash h3"></i>
+                                        </button>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <% }) %>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SEE SHEETS -->
+            <div class="col mt-4" id="jobSheetsDiv" style="display: none;">
+                <div class="mt-2 px-3" style="display: block;">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h3>Fiches de postes</h3>
+                        <button class="btn btn-secondary ml-3" id="addJobOfferButton" onclick="showAddJobSheets()">
+                            <span id="button-add-icon"><i class="bi bi-plus-square"></i></span>
+                            <span id="button-text">Ajouter une fiche</span>
+                        </button>
+                    </div>
+                    <hr>
+                    <div class="col-md-12">
+                        <% jobSheets.forEach((jobSheet, index)=> {
+                            const jobType = jobTypes.find(jobType => jobType.id === jobSheet.jobType);
+                            const jobStatus = status.find(jobStatus => jobStatus.id === jobSheet.status);
+                            %>
+
+                            <div class="card mb-2 p-4">
+                                <div class="row">
+                                    <div class="col-md-11">
+                                        <h5 class="card-title ml-4 mb-auto pl-4" id="jobSheetTitle-<%=jobSheet.id %>">
+                                            <%= jobSheet.title %><span class="text-muted"></span>
+                                        </h5>
+                                        <div class="row no-gutters">
+                                            <div class="col-md-6 mb-1">
+                                                <div class="card-body pl-4 pb-0">
+                                                    <div>
+                                                        <label class="card-text mb-1">
+                                                            <strong>Type de métier:</strong>
+                                                        </label>
+                                                        <span id="jobSheetJobType-<%=jobSheet.id %>"
+                                                            data-jobTypeId=" <%= jobType.id %>">
+                                                            <%= jobType.jobType %>
+                                                        </span>
+                                                    </div>
+                                                    <div>
+                                                        <label class="card-text mb-1">
+                                                            <strong>Statut:</strong>
+                                                        </label>
+                                                        <span id="jobSheetStatus-<%=jobSheet.id %>"
+                                                            data-statusId="<%= jobStatus.id %>">
+                                                            <%= jobStatus.status %>
+                                                        </span>
+                                                    </div>
+                                                    <div>
+                                                        <label class="card-text mb-1">
+                                                            <strong>Localisation:</strong>
+                                                        </label>
+                                                        <span id="jobSheetLocation-<%=jobSheet.id %>">
+                                                            <%= jobSheet.location %>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="card-body pb-0">
+                                                    <div>
+                                                        <label class="card-text mb-1">
+                                                            <strong>Salaire (€/an):</strong>
+                                                        </label>
+                                                        <span id="jobSheetSalary-<%=jobSheet.id %>">
+                                                            <%= jobSheet.salary %>
+                                                        </span>
+                                                    </div>
+                                                    <div>
+                                                        <label class="card-text mb-1">
+                                                            <strong>Rythme:</strong>
+                                                        </label>
+                                                        <span id="jobSheetRythme-<%=jobSheet.id %>">
+                                                            <%= jobSheet.rythme %>
+                                                        </span>
+                                                    </div>
+                                                    <div>
+                                                        <label>
+                                                            <strong>Responsable:</strong>
+                                                        </label>
+                                                        <span id="jobSheetManager-<%=jobSheet.id %>">
+                                                            <%= jobSheet.manager %>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-9">
+                                            <div class="card-body pb-0">
+                                                <label>
+                                                    <strong>Description:</strong>
+                                                </label>
+                                                <span id="jobSheetDescription-<%=jobSheet.id %>">
+                                                    <%= jobSheet.description %>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-1 d-flex align-items-center flex-column justify-content-center">
+                                        <button
+                                            class="btn btn-warning mb-2 d-flex justify-content-center align-items-center w-75"
+                                            onclick="updateJobSheetModal(<%=jobSheet.id %>)">
+                                            <i class="bi bi-pencil h3"></i>
+                                        </button>
+
+                                        <button
+                                            class="btn btn-danger mb-2 d-flex justify-content-center align-items-center w-75"
+                                            onclick="deleteJobSheetModal(<%=jobSheet.id %>, '<%=jobSheet.title %>')">
+                                            <i class="bi bi-trash h3"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <% }) %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JOIN REQUESTS -->
+    <div class="col mt-4" id="joinRequestsDiv" style="display: none;">
+        <div class="mt-2 px-3" style="display: block;">
+            <div class="d-flex justify-content-between align-items-center">
+                <h3>Demandes d'adhésion</h3>
+            </div>
+            <hr>
+            <div class="col-12 d-flex justify-content-center flex-wrap">
+                <% joinRequests.forEach((joinRequest, index)=> {
+                    %>
+                    <div id="joinRequest-<%=joinRequest.id %>" class="card mb-2 p-4 mx-1 col-sm-4 col-lg-3">
+                        <h5 class="card-title ml-4 mb-auto pl-4" id="joinRequestTitle-<%=joinRequest.id %>">
+                            <%= joinRequest.lname %>
+                                <%= joinRequest.fname %><span class="text-muted"></span>
+                        </h5>
+                        <div class="card-body pl-4 pb-0">
+                            <div>
+                                <label class="card-text mb-1">
+                                    <strong>Email:</strong>
+                                </label>
+                                <span>
+                                    <%= joinRequest.email %>
+                                </span>
+                            </div>
+                            <div>
+                                <label class="card-text mb-1">
+                                    <strong>Telephone:</strong>
+                                </label>
+                                <span>
+                                    <%= joinRequest.telephone %>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="mt-4 d-flex align-items-center justify-content-center">
+                            <button
+                                class="btn btn-success mb-2 mx-4 d-flex justify-content-center align-items-center w-25"
+                                onclick="acceptJoinRequest(<%= joinRequest.id %>)">
+                                <i class="bi bi-check-square h3"></i>
+                            </button>
+
+                            <button class="btn btn-danger mb-2 d-flex justify-content-center align-items-center w-25"
+                                onclick="denyJoinRequest(<%= joinRequest.id %>)">
+                                <i class="bi bi-x-square h3"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="acceptJoinRequest-<%=joinRequest.id %>" class="card mb-2 mx-1 col-sm-4 col-lg-3"
+                        style="background-color: green; display: none;">
+                        <div class="h-100 w-100 d-flex justify-content-center align-items-center">
+                            <i class="bi bi-check-square h1 text-light"></i>
+                        </div>
+                    </div>
+                    <div id="denyJoinRequest-<%=joinRequest.id %>" class="card mb-2 mx-1 col-sm-4 col-lg-3"
+                        style="background-color: #BB2D3B; display: none;">
+                        <div class="h-100 w-100 d-flex justify-content-center align-items-center">
+                            <i class="bi bi-x-square h1 text-light"></i>
+                        </div>
+                    </div>
+                    <% }) %>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADD OFFER -->
+    <div id="addJobOffers" class="mt-2 px-4" style="display: none;">
+        <div class="d-flex justify-content-between align-items-center">
+            <h3>Ajout d'une offre</h3>
+            <button class="btn btn-secondary" id="addJobOfferButton" onclick="showOffers()">
+                <span><i class="bi bi-arrow-left-square-fill"></i></span>
+                <span>Retour aux offres</span>
+            </button>
+        </div>
+        <hr>
+
+        <div class="row">
+            <form id="addJobOfferForm" class="col-md-6 mx-auto mb-4">
+                <div class="form-group mb-3">
+                    <label for="jobSheetSelect">Fiche de poste :</label>
+                    <select class="form-control" name="jobSheetSelect" id="addJobOfferJobSheetSelect">
+                        <option value="-1">Nouvelle fiche de poste</option>
+                        <option value="0" selected>Veuillez selectionner une fiche de poste</option>
+                        <% jobSheets.forEach((jobSheet)=> { %>
+                            <option value="<%=jobSheet.id %>">
+                                <%= jobSheet.title %>
+                            </option>
+                            <% }) %>
+                    </select>
+                </div>
+
+                <div id="addJobOfferNewJobSheetDiv" class="p-4"
+                    style="display:none; background-color: rgba(237, 237, 237, 0.43)">
+                    <div class="form-group mb-3">
+                        <label for="jobTitle">Intitulé du poste :</label>
+                        <input type="text" class="form-control" name="jobTitle" placeholder="Intitulé du poste">
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label for="jobStatus">Statut :</label>
+                        <select class="form-control" name="statusSelect" id="addJobOfferStatusSelect">
+                            <option value="-1">Nouveau statut</option>
+                            <option value="0" selected>Veuillez selectionner un statut
+                            </option>
+                            <!-- options pour sélectionner un statut existant -->
+                            <% status.forEach((statu)=> { %>
+                                <option value=<%=statu.id %>>
+                                    <%=statu.status%>
+                                </option>
+                                <% }) %>
+                        </select>
+                    </div>
+                    <div id="addJobOfferNewStatusDiv" class="p-2"
+                        style="display:none; background-color: rgba(210, 210, 210, 0.43);">
+                        <div class="form-group mb-3">
+                            <label for="newStatus">Nouveau statut :</label>
+                            <input type="text" class="form-control" name="newStatus" placeholder="Statut">
+                        </div>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label for="jobManager">Responsable hiérarchique :</label>
+                        <input type="text" class="form-control" name="jobManager"
+                            placeholder="Responsable hiérarchique">
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label for="jobType">Type de métier :</label>
+                        <select class="form-control" name="jobTypeSelect" id="addJobOfferJobTypeSelect">
+                            <option value="-1">Nouveau type de métier</option>
+                            <option value="0" selected>Veuillez selectionner une fiche de poste
+                            </option>
+                            <!-- options pour sélectionner un type de métier existant -->
+                            <% jobTypes.forEach((jobType)=> { %>
+                                <option value=<%=jobType.id %>>
+                                    <%= jobType.jobType %>
+                                </option>
+                                <% }) %>
+                        </select>
+                    </div>
+                    <div id="addJobOfferNewJobTypeDiv" class="p-2"
+                        style="display:none; background-color: rgba(210, 210, 210, 0.43);">
+                        <div class="form-group mb-3">
+                            <label for="newJobType">Nouveau Type de métier :</label>
+                            <input type="text" class="form-control" name="newJobType" placeholder="Type de métier">
+                        </div>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label for="jobLocation">Lieu de la mission :</label>
+                        <input type="text" class="form-control" name="jobLocation" placeholder="Lieu de la mission">
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="jobRythme">Rythme (ex. 35 heures/semaine) :</label>
+                        <input type="text" class="form-control" name="jobRythme"
+                            placeholder="Rythme (ex. 35 heures/semaine)">
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="jobSalary">Salaire annuel:</label>
+                        <input type="number" class="form-control" name="jobSalary" placeholder="Salaire annuel en €">
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="jobDescription">Description:</label>
+                        <textarea class="form-control" name="jobDescription"
+                            placeholder="Missions et activités, compétences attendues"></textarea>
+                    </div>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="endDate">Date de fin :</label>
+                    <input required type="date" class="form-control" name="endDate" placeholder="Date de fin">
+                </div>
+                <div class="form-group mb-3">
+                    <label for="requestedDocuments">Documents requis :</label>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="LM" name="requestedDocuments">
+                        <label class="form-check-label" for="checkboxLM">
+                            Lettre de motivation (LM)
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="CV" name="requestedDocuments">
+                        <label class="form-check-label" for="checkboxCV">
+                            Curriculum vitae (CV)
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="CNI" name="requestedDocuments">
+                        <label class="form-check-label" for="checkboxCNI">
+                            Carte nationale d'identité (CNI)
+                        </label>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-center">
+                    <button id="addJobOfferSubmit" type="submit" class="btn btn-success">Ajouter
+                        l'offre</button>
+                </div>
+                <div class="d-flex justify-content-center align-items-center" role="status">
+                    <div id="addJobOfferSpinner" class="spinner-border" style="display:none;">
+                        <span class="sr-only"></span>
+                    </div>
+                </div>
+                <div id="addJobOfferConfirmationMessage"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ADD SHEET -->
+    <div id="addJobSheets" class="mt-2 px-4" style="display: none;">
+        <div class="d-flex justify-content-between align-items-center">
+            <h3>Ajout d'une fiche de poste</h3>
+            <button class="btn btn-secondary" id="addJobOfferButton" onclick="showSheets()">
+                <span id="button-add-offer-icon"><i class="bi bi-arrow-left-square-fill"></i></span>
+                <span id="button-text">Retour aux fiches</span>
+            </button>
+        </div>
+        <hr>
+
+        <div class="row">
+            <form id="addJobSheetForm" class="col-md-6 mx-auto">
+                <div class="form-group mb-3">
+                    <label for="jobTitle">Intitulé du poste :</label>
+                    <input type="text" class="form-control" name="jobTitle" placeholder="Intitulé du poste">
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="jobStatus">Statut :</label>
+                    <select class="form-control" name="statusSelect" id="addJobSheetStatusSelect">
+                        <option value="-1">Nouveau statut</option>
+                        <option value="0" selected>Veuillez selectionner un statut
+                        </option>
+                        <!-- options pour sélectionner un statut existant -->
+                        <% status.forEach((statu)=> { %>
+                            <option value=<%=statu.id %>>
+                                <%=statu.status%>
+                            </option>
+                            <% }) %>
+                    </select>
+                </div>
+                <div id="addJobSheetNewStatusDiv" class="p-2"
+                    style="display:none; background-color: rgba(210, 210, 210, 0.43);">
+                    <div class="form-group mb-3">
+                        <label for="newStatus">Nouveau statut :</label>
+                        <input type="text" class="form-control" name="newStatus" placeholder="Type de métier">
+                    </div>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="jobManager">Responsable hiérarchique :</label>
+                    <input type="text" class="form-control" name="jobManager" placeholder="Responsable hiérarchique">
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="jobType">Type de métier :</label>
+                    <select class="form-control" name="jobTypeSelect" id="addJobSheetJobTypeSelect">
+                        <option value="-1">Nouveau type de métier</option>
+                        <option value="0" selected>Veuillez selectionner une fiche de poste
+                        </option>
+                        <!-- options pour sélectionner un type de métier existant -->
+                        <% jobTypes.forEach((jobType)=> { %>
+                            <option value=<%=jobType.id %>>
+                                <%=jobType.jobType%>
+                            </option>
+                            <% }) %>
+                    </select>
+                </div>
+                <div id="addJobSheetNewJobTypeDiv" class="p-2"
+                    style="display:none; background-color: rgba(210, 210, 210, 0.43);">
+                    <div class="form-group mb-3">
+                        <label for="newJobType">Nouveau Type de métier :</label>
+                        <input type="text" class="form-control" name="newJobType" placeholder="Type de métier">
+                    </div>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="jobLocation">Lieu de la mission :</label>
+                    <input type="text" class="form-control" name="jobLocation" placeholder="Lieu de la mission">
+                </div>
+                <div class="form-group mb-3">
+                    <label for="jobRythme">Rythme (ex. 35 heures/semaine) :</label>
+                    <input type="text" class="form-control" name="jobRythme"
+                        placeholder="Rythme (ex. 35 heures/semaine)">
+                </div>
+                <div class="form-group mb-3">
+                    <label for="jobSalary">Salaire :</label>
+                    <input type="number" class="form-control" name="jobSalary" placeholder="Salaire annuel en €">
+                </div>
+                <div class="form-group mb-3">
+                    <label for="jobDescription">Description:</label>
+                    <textarea class="form-control" name="jobDescription"
+                        placeholder="Missions et activités, compétences attendues"></textarea>
+                </div>
+                <div class="d-flex justify-content-center mb-4">
+                    <button id="addJobSheetSubmit" type="submit" class="btn btn-success">Ajouter
+                        la fiche</button>
+                </div>
+                <div class="d-flex justify-content-center align-items-center" role="status">
+                    <div id="addJobSheetSpinner" class="spinner-border" style="display:none;">
+                        <span class="sr-only"></span>
+                    </div>
+                </div>
+                <div id="addJobSheetConfirmationMessage"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- UPDATE JOBOFFER -->
+    <div class="modal" id="updateJobOfferModal">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="updateJobOfferModalTitle"></h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="updateJobOfferForm" class="col-md-8 mx-auto">
+                        <div class="form-group mb-3">
+                            <label for="updateJobSheetSelect">Fiche de poste :</label>
+                            <select class="form-control" id="updateJobSheetSelect" name="updateJobSheetSelect">
+                                <option value="0">Veuillez selectionner une fiche de poste</option>
+                                <% jobSheets.forEach((jobSheet)=> { %>
+                                    <option value=<%=jobSheet.id %> >
+                                        <%= jobSheet.title %>
+                                    </option>
+                                    <% }) %>
+                            </select>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="endDate">Date de fin :</label>
+                            <input required type="date" class="form-control" id="updateJobOfferEndDate"
+                                name="updateJobOfferEndDate" placeholder="Date de fin">
+                        </div>
+                        <div class="form-group mb-5">
+                            <label for="requestedDocuments">Documents requis :</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="LM" id="updateJobOfferCheckboxLM"
+                                    name="updateJobOfferRequestedDocuments">
+                                <label class="form-check-label" for="checkboxLM">
+                                    Lettre de motivation (LM)
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="CV" id="updateJobOfferCheckboxCV"
+                                    name="updateJobOfferRequestedDocuments">
+                                <label class="form-check-label" for="checkboxCV">
+                                    Curriculum vitae (CV)
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="CNI"
+                                    id="updateJobOfferCheckboxCNI" name="updateJobOfferRequestedDocuments">
+                                <label class="form-check-label" for="checkboxCNI">
+                                    Carte nationale d'identité (CNI)
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-center mb-1">
+                            <button id="updateJobOfferSubmit" type="submit" class="btn btn-success">Modifier
+                                l'offre</button>
+                        </div>
+                        <div class="d-flex justify-content-center align-items-center" role="status">
+                            <div id="updateJobOfferSpinner" class="spinner-border" style="display:none;">
+                                <span class="sr-only"></span>
+                            </div>
+                        </div>
+                        <div id="updateJobOfferConfirmationMessage"></div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="updateJobOfferClose" class="btn btn-secondary"
+                        data-bs-dismiss="modal">Fermer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SHOW APPLICATIONS -->
+    <div class="modal" id="showApplicationModal">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="showApplicationModalTitle"></h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="showApplicationContainer"></div>
+                    <div class="d-flex justify-content-center align-items-center" role="status">
+                        <div id="showApplicationSpinner" class="spinner-border" style="display:none;">
+                            <span class="sr-only"></span>
+                        </div>
+                    </div>
+                    <div id="showApplicationConfirmationMessage"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="showApplicationClose" class="btn btn-secondary"
+                        data-bs-dismiss="modal">Fermer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- UPDATE JOBSHEET -->
+    <div class="modal" id="updateJobSheetModal">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="updateJobSheetModalTitle"></h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body mb-4">
+                    <form id="updateJobSheetForm" class="col-md-9 mx-auto">
+                        <div class="form-group mb-3 mx-4">
+                            <label for="jobTitle">Intitulé du poste :</label>
+                            <input type="text" class="form-control" id="updateJobSheetTitle" name="jobTitle"
+                                placeholder="Intitulé du poste">
+                        </div>
+
+                        <div class="form-group mb-3 mx-4">
+                            <label for="jobStatus">Statut :</label>
+                            <select class="form-control" name="statusSelect" id="updateJobSheetStatusSelect">
+                                <option value="-1">Nouveau statut</option>
+                                <option value="0" selected>Veuillez selectionner un statut
+                                </option>
+                                <!-- options pour sélectionner un statut existant -->
+                                <% status.forEach((statu)=> { %>
+                                    <option value=<%=statu.id %>>
+                                        <%=statu.status%>
+                                    </option>
+                                    <% }) %>
+                            </select>
+                        </div>
+                        <div id="updateJobSheetNewStatusDiv" class="p-2"
+                            style="display:none; background-color: rgba(210, 210, 210, 0.43);">
+                            <div class="form-group mb-3 mx-4">
+                                <label for="newStatus">Nouveau statut :</label>
+                                <input type="text" class="form-control" name="newStatus" placeholder="Statut">
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-3 mx-4">
+                            <label for="jobManager">Responsable hiérarchique :</label>
+                            <input type="text" class="form-control" id="updateJobSheetManager" name="jobManager"
+                                placeholder="Responsable hiérarchique">
+                        </div>
+
+                        <div class="form-group mb-3 mx-4">
+                            <label for="jobType">Type de métier :</label>
+                            <select class="form-control" name="jobTypeSelect" id="updateJobSheetJobTypeSelect">
+                                <option value="-1">Nouveau type de métier</option>
+                                <option value="0" selected>Veuillez selectionner une fiche de poste
+                                </option>
+                                <!-- options pour sélectionner un type de métier existant -->
+                                <% jobTypes.forEach((jobType)=> { %>
+                                    <option value=<%=jobType.id %>>
+                                        <%=jobType.jobType%>
+                                    </option>
+                                    <% }) %>
+                            </select>
+                        </div>
+                        <div id="updateJobSheetNewJobTypeDiv" class="p-2"
+                            style="display:none; background-color: rgba(210, 210, 210, 0.43);">
+                            <div class="form-group mb-3 mx-4">
+                                <label for="newJobType">Nouveau Type de métier :</label>
+                                <input type="text" class="form-control" name="newJobType" placeholder="Type de métier">
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-3 mx-4">
+                            <label for="jobLocation">Lieu de la mission :</label>
+                            <input type="text" class="form-control" id="updateJobSheetLocation" name="jobLocation"
+                                placeholder="Lieu de la mission">
+                        </div>
+                        <div class="form-group mb-3 mx-4">
+                            <label for="jobRythme">Rythme (ex. 35 heures/semaine) :</label>
+                            <input type="text" class="form-control" id="updateJobSheetRythme" name="jobRythme"
+                                placeholder="Rythme (ex. 35 heures/semaine)">
+                        </div>
+                        <div class="form-group mb-3 mx-4">
+                            <label for="jobSalary">Salaire :</label>
+                            <input type="number" class="form-control" id="updateJobSheetSalary" name="jobSalary"
+                                placeholder="Salaire">
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="jobDescription">Description:</label>
+                            <textarea class="form-control" name="jobDescription" id="updateJobSheetDescription"
+                                placeholder="Missions et activités, compétences attendues"></textarea>
+                        </div>
+                        <div class="d-flex justify-content-center">
+                            <button id="updateJobSheetSubmit" type="submit" class="btn btn-success">Modifier
+                                la fiche</button>
+                        </div>
+                        <div class="d-flex justify-content-center align-items-center" role="status">
+                            <div id="updateJobSheetSpinner" class="spinner-border" style="display:none;">
+                                <span class="sr-only"></span>
+                            </div>
+                        </div>
+                        <div id="updateJobSheetConfirmationMessage"></div>
+                    </form>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" id="updateJobSheetClose" class="btn btn-secondary"
+                        data-bs-dismiss="modal">Fermer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DELETE JOBOFFER -->
+    <div class="modal" id="deleteJobOfferModal">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Confirmer</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Attention ! Vous etes sur le point de supprimer toutes les candidatures liées à cette offre !</p>
+                    <p>Confirmer la suppression ?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Non</button>
+                    <button type="button" class="btn btn-danger" id="deleteJobOffer">Oui</button>
+                </div>
+                <div class="d-flex justify-content-center align-items-center" role="status">
+                    <div id="deleteJobOfferSpinner" class="spinner-border" style="display:none;">
+                        <span class="sr-only"></span>
+                    </div>
+                </div>
+                <div id="deleteJobOfferConfirmationMessage"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DELETE JOBSHEET -->
+    <div class="modal" id="deleteJobSheetModal">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="deleteJobSheetModalTitle">${title} : Confirmer la suppression</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Attention ! Vous etes sur le point de supprimer toutes les offres et candidatures liées à cette
+                        fiche !</p>
+                    <p>Confirmer la suppression ?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Non</button>
+                    <button type="button" class="btn btn-danger" id="deleteJobSheet">Oui</button>
+                </div>
+                <div class="d-flex justify-content-center align-items-center" role="status">
+                    <div id="deleteJobSheetSpinner" class="spinner-border" style="display:none;">
+                        <span class="sr-only"></span>
+                    </div>
+                </div>
+                <div id="deleteJobSheetConfirmationMessage"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.6.4.js"
+        integrity="sha256-a9jBBRygX1Bh5lt8GZjXDzyOB+bWve9EiO7tROUtj/E=" crossorigin="anonymous"></script>
+    <!-- Link to Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.min.js"
+        integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+        crossorigin="anonymous"></script>
+    <script>
+        $(document).ready(function () {
+            var url = window.location.href;
+            if (url.indexOf("#jobSheets") !== -1) {
+                showSheets();
+            }
+
+            if (url.indexOf("#joinRequests") !== -1) {
+                showJoinRequests();
+            }
+        });
+        // Add Offer form Submit
+        $(document).ready(function () {
+            $('#addJobOfferForm').submit(function (e) {
+                e.preventDefault(); // Empêche le rechargement de la page par défaut
+
+                // Verification des selects
+                var jobTypeSelect = document.getElementById("addJobOfferJobTypeSelect");
+                var jobSheetSelect = document.getElementById("addJobOfferJobSheetSelect");
+                if (jobSheetSelect.value === "0") {
+                    $('#addJobOfferConfirmationMessage').text('Veuillez saisir la fiche de poste.');
+                    return
+                }
+                if (jobSheetSelect.value === "-1" && jobTypeSelect.value === "0") {
+                    $('#addJobOfferConfirmationMessage').text('Veuillez saisir le type de metier.');
+                    return
+                }
+
+                // Envoi de la requête AJAX
+                $.ajax({
+                    url: '/recruiter/addOffer',
+                    type: 'POST',
+                    data: $("#addJobOfferForm").serialize(),
+                    success: function (response) {
+                        // Affichage du message de confirmation
+                        $('#addJobOfferConfirmationMessage').text('L\'offre a été ajoutée avec succès !');
+                        $('#addJobOfferSubmit').css('display', 'none');
+                        $('#addJobOfferSpinner').css('display', 'block');
+                        setTimeout(function () {
+                            location.reload();
+                        }, 1000); // wait for 3 seconds before reloading the page
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        console.error(errorThrown);
+                        $('#addJobOfferConfirmationMessage').text('Une erreur est survenue, veuillez réessayer plus tard.');
+                    }
+                });
+            });
+        });
+
+        // Add Sheet form Submit
+        $(document).ready(function () {
+            $('#addJobSheetForm').submit(function (e) {
+                e.preventDefault(); // Empêche le rechargement de la page par défaut
+
+                // Verification des selects
+                var statusSelect = document.getElementById("statusSelect");
+                if (statusSelect.value === "0") {
+                    $('#addJobSheetConfirmationMessage').text('Veuillez saisir le type de metier.');
+                    return
+                }
+
+                // Envoi de la requête AJAX
+                $.ajax({
+                    url: '/recruiter/addSheet',
+                    type: 'POST',
+                    data: $("#addJobSheetForm").serialize(),
+                    success: function (response) {
+                        // Affichage du message de confirmation
+                        $('#addJobSheetConfirmationMessage').text('La fiche a été ajoutée avec succès !');
+                        $('#addJobSheetSubmit').css('display', 'none');
+                        $('#addJobSheetSpinner').css('display', 'block');
+                        setTimeout(function () {
+                            location.reload();
+                        }, 1000); // wait for 3 seconds before reloading the page
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        console.error(errorThrown);
+                        $('#addJobSheetConfirmationMessage').text('Une erreur est survenue, veuillez réessayer plus tard.');
+                    }
+                });
+            });
+        });
+
+        // Expired Offers toogle button
+        var expired_button = document.getElementById("expired-button");
+        var icon_expired_checked = document.getElementById("button-expired-icon-checked");
+        var icon_expired_unchecked = document.getElementById("button-expired-icon-unchecked");
+        expired_button.addEventListener("click", function () {
+            if (icon_expired_checked.style.display === "none") {
+                icon_expired_checked.style.display = "";
+                icon_expired_unchecked.style.display = "none";
+            } else {
+                icon_expired_checked.style.display = "none";
+                icon_expired_unchecked.style.display = "";
+            }
+        });
+
+        function showOffers() {
+            document.getElementById("offersAndSheets").style.display = "";
+            document.getElementById("jobOffersDiv").style.display = "";
+            document.getElementById("jobSheetsDiv").style.display = "none";
+            document.getElementById("addJobOffers").style.display = "none";
+            document.getElementById("addJobSheets").style.display = "none";
+            document.getElementById("filterSection").style.display = "";
+            document.getElementById("joinRequestsDiv").style.display = "none";
+        }
+
+        function showSheets() {
+            document.getElementById("offersAndSheets").style.display = "";
+            document.getElementById("jobSheetsDiv").style.display = "";
+            document.getElementById("filterSection").style.display = "";
+            document.getElementById("jobOffersDiv").style.display = "none";
+            document.getElementById("addJobOffers").style.display = "none";
+            document.getElementById("addJobSheets").style.display = "none";
+            document.getElementById("joinRequestsDiv").style.display = "none";
+        }
+
+        function showaddJobOffers() {
+            document.getElementById("offersAndSheets").style.display = "none";
+            document.getElementById("addJobOffers").style.display = "";
+            document.getElementById("addJobSheets").style.display = "none";
+            document.getElementById("jobOffersDiv").style.display = "none";
+            document.getElementById("jobSheetsDiv").style.display = "none";
+            document.getElementById("filterSection").style.display = "none";
+            document.getElementById("joinRequestsDiv").style.display = "none";
+        }
+
+        function showAddJobSheets() {
+            document.getElementById("offersAndSheets").style.display = "none";
+            document.getElementById("addJobOffers").style.display = "none";
+            document.getElementById("addJobSheets").style.display = "";
+            document.getElementById("jobOffersDiv").style.display = "none";
+            document.getElementById("jobSheetsDiv").style.display = "none";
+            document.getElementById("filterSection").style.display = "none";
+            document.getElementById("joinRequestsDiv").style.display = "none";
+        }
+
+        function showJoinRequests() {
+            document.getElementById("offersAndSheets").style.display = "none";
+            document.getElementById("addJobOffers").style.display = "none";
+            document.getElementById("addJobSheets").style.display = "none";
+            document.getElementById("jobOffersDiv").style.display = "none";
+            document.getElementById("jobSheetsDiv").style.display = "none";
+            document.getElementById("filterSection").style.display = "none";
+            document.getElementById("joinRequestsDiv").style.display = "";
+        }
+
+        // Add Job Offer selects
+        var jobSheetSelect = document.getElementById("addJobOfferJobSheetSelect");
+        var newJobSheetDiv = document.getElementById("addJobOfferNewJobSheetDiv");
+        addSelectListener(jobSheetSelect, newJobSheetDiv);
+        var jobTypeSelect = document.getElementById("addJobOfferJobTypeSelect");
+        var newJobTypeDiv = document.getElementById("addJobOfferNewJobTypeDiv");
+        addSelectListener(jobTypeSelect, newJobTypeDiv);
+        var jobSheetSelect = document.getElementById("addJobOfferStatusSelect");
+        var newJobSheetDiv = document.getElementById("addJobOfferNewStatusDiv");
+        addSelectListener(jobSheetSelect, newJobSheetDiv);
+
+        // Add Job Sheet Select
+        var jobSheetSelect = document.getElementById("addJobSheetJobTypeSelect");
+        var newJobSheetDiv = document.getElementById("addJobSheetNewJobTypeDiv");
+        addSelectListener(jobSheetSelect, newJobSheetDiv);
+        var jobSheetSelect = document.getElementById("addJobSheetStatusSelect");
+        var newJobSheetDiv = document.getElementById("addJobSheetNewStatusDiv");
+        addSelectListener(jobSheetSelect, newJobSheetDiv);
+
+        // Update Job Sheet Selects
+        var jobSheetSelect = document.getElementById("updateJobSheetJobTypeSelect");
+        var newJobSheetDiv = document.getElementById("updateJobSheetNewJobTypeDiv");
+        addSelectListener(jobSheetSelect, newJobSheetDiv);
+        var jobSheetSelect = document.getElementById("updateJobSheetStatusSelect");
+        var newJobSheetDiv = document.getElementById("updateJobSheetNewStatusDiv");
+        addSelectListener(jobSheetSelect, newJobSheetDiv);
+
+        function addSelectListener(selectElem, newElem) {
+            selectElem.addEventListener("change", function () {
+                if (selectElem.selectedIndex === 0) {
+                    newElem.style.display = "";
+                    setInputsRequired(newElem, true)
+                } else {
+                    newElem.style.display = "none";
+                    setInputsRequired(newElem, false)
+                }
+            });
+        }
+
+        function ModifyOffer(id, title) {
+            // Create a new div element to hold the form
+            var formDiv = document.createElement('div');
+
+
+            // Add the form div to the document
+            document.body.appendChild(formDiv);
+            formDiv.addEventListener('click', function (event) {
+                if (event.target === formDiv) {
+                    formDiv.remove();
+                }
+            });
+        }
+
+        function setInputsRequired(divElem, value) {
+            var inputs = divElem.getElementsByTagName("input");
+            for (var i = 0; i < inputs.length; i++) {
+                inputs[i].required = value;
+            }
+        }
+
+        // UPDATE JOB OFFER
+        function updateJobOfferModal(jobOfferNumber, jobSheetId, title, endDateString, requestedDocuments) {
+            const isoDateString = new Date(endDateString).toLocaleDateString().replace(/(\d{2})\/(\d{2})\/(\d{4})/, "$3-$2-$1");
+            $('#updateJobOfferModalTitle').text("Edition de la fiche de poste " + jobOfferNumber + "");
+            $('#updateJobOfferEndDate').val(isoDateString);
+            let requestedDocumentsList;
+            try {
+                requestedDocumentsList = JSON.parse(requestedDocuments);
+            } catch (error) {
+                requestedDocumentsList = []; // set an empty array as the default value
+            }
+            if (requestedDocumentsList.includes("LM")) {
+                $('#updateJobOfferCheckboxLM').prop('checked', true);
+            } else {
+                $('#updateJobOfferCheckboxLM').prop('checked', false);
+            }
+            if (requestedDocumentsList.includes("CV")) {
+                $('#updateJobOfferCheckboxCV').prop('checked', true);
+            } else {
+                $('#updateJobOfferCheckboxCV').prop('checked', false);
+            }
+            if (requestedDocumentsList.includes("CNI")) {
+                $('#updateJobOfferCheckboxCNI').prop('checked', true);
+            } else {
+                $('#updateJobOfferCheckboxCNI').prop('checked', false);
+            }
+            $('#updateJobOfferModal').modal('show');
+            $('#updateJobSheetSelect option[value="' + jobSheetId + '"]').prop('selected', true);
+
+            $(document).ready(function () {
+                $('#updateJobOfferForm').submit(function (e) {
+                    e.preventDefault(); // Empêche le rechargement de la page par défaut
+
+                    // Envoi de la requête AJAX
+                    var serializedData = $("#updateJobOfferForm").serialize();
+                    serializedData += "&jobOfferNumber=" + jobOfferNumber;
+                    $.ajax({
+                        url: '/recruiter/updateJobOffer',
+                        type: 'POST',
+                        data: serializedData,
+                        success: function (response) {
+                            // Affichage du message de confirmation
+                            $('#updateJobOfferConfirmationMessage').text('L\'offre a été modifiée avec succès !');
+                            $('#updateJobOfferClose').css('display', 'none');
+                            $('#updateJobOfferSubmit').css('display', 'none');
+                            $('#updateJobOfferSpinner').css('display', 'block');
+                            setTimeout(function () {
+                                location.reload();
+                            }, 1000); // wait for 3 seconds before reloading the page
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            console.error(errorThrown);
+                            $('#updateJobOfferConfirmationMessage').text('Une erreur est survenue, veuillez réessayer plus tard.');
+                        }
+                    });
+                });
+            });
+        }
+
+        // UPDATE JOB SHEET
+        function updateJobSheetModal(jobSheetId) {
+            $('#updateJobSheetModal').modal('show');
+
+            $('#updateJobSheetModalTitle').text("Edition de '" + $('#jobSheetTitle-' + jobSheetId).text().trim() + "'");
+            $('#updateJobSheetTitle').val($('#jobSheetTitle-' + jobSheetId).text().trim());
+            $('#updateJobSheetManager').val($('#jobSheetManager-' + jobSheetId).text().trim());
+            $('#updateJobSheetLocation').val($('#jobSheetLocation-' + jobSheetId).text().trim());
+            $('#updateJobSheetRythme').val($('#jobSheetRythme-' + jobSheetId).text().trim());
+            $('#updateJobSheetSalary').val($('#jobSheetSalary-' + jobSheetId).text().trim());
+            $('#updateJobSheetDescription').val($('#jobSheetDescription-' + jobSheetId).text().trim());
+            $('#updateJobSheetJobTypeSelect option[value=' + $('#jobSheetJobType-' + jobSheetId).data().jobtypeid + ']').prop('selected', true);
+            $('#updateJobSheetStatusSelect option[value=' + $('#jobSheetStatus-' + jobSheetId).data().statusid + ']').prop('selected', true);
+
+            var lines = $('#updateJobSheetDescription').val().split('\n').length;
+            // Adjust the rows attribute based on the number of lines
+            $('#updateJobSheetDescription').attr('rows', lines);
+
+            $(document).ready(function () {
+                $('#updateJobSheetForm').submit(function (e) {
+                    e.preventDefault(); // Empêche le rechargement de la page par défaut
+
+                    // Envoi de la requête AJAX
+                    var serializedData = $("#updateJobSheetForm").serialize();
+                    serializedData += "&id=" + jobSheetId;
+                    $.ajax({
+                        url: '/recruiter/updateJobSheet',
+                        type: 'POST',
+                        data: serializedData,
+                        success: function (response) {
+                            // Affichage du message de confirmation
+                            $('#updateJobSheetConfirmationMessage').text('L\'offre a été modifiée avec succès !');
+                            $('#updateJobSheetClose').css('display', 'none');
+                            $('#updateJobSheetSubmit').css('display', 'none');
+                            $('#updateJobSheetSpinner').css('display', 'block');
+                            setTimeout(function () {
+                                location.reload();
+                            }, 1000); // wait for 3 seconds before reloading the page
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            console.error(errorThrown);
+                            $('#updateJobSheetConfirmationMessage').text('Une erreur est survenue, veuillez réessayer plus tard.');
+                        }
+                    });
+                });
+            });
+        }
+
+        function generateApplicationHTML(application) {
+            var html = '<div class="card mb-3">';
+            html += '<div class="card-body">';
+            html += '<h5 class="card-title">Candidature n°: ' + application.id + '</h5>';
+            html += '<p class="card-text">Candidat: ' + application.lname + ' ' + application.fname + '</p>';
+
+            // Générer des liens pour chaque pièce de l'application
+            html += '<p class="card-text">Pieces:';
+            application.pieces.forEach(function (piece) {
+                var fileLink = '/recruiter/getApplicationsDocument/' + application.id + '/' + encodeURIComponent(piece);
+                html += ' <a href="' + fileLink + '">' + piece + '</a>';
+            });
+            html += '</p>';
+
+            html += '</div></div>';
+
+            return html;
+        }
+
+        // SHOW APPLICATIONS
+        function showApplicationModal(jobOfferNumber) {
+
+            $('#showApplicationSpinner').css('display', 'block');
+
+            $.ajax({
+                url: '/recruiter/getApplicationsData',
+                method: 'POST',
+                data: { 'jobOfferNumber': jobOfferNumber },
+                success: function (applications) {
+                    $('#showApplicationSpinner').css('display', 'none');
+
+                    var applicationsContainer = $('#showApplicationContainer');
+                    $('#showApplicationContainer').empty();
+
+                    applications.applicationData.forEach(function (application) {
+                        var applicationHTML = generateApplicationHTML(application);
+                        applicationsContainer.append(applicationHTML);
+                    });
+                },
+                error: function (error) {
+                    console.error(error);
+                    $('#showApplicationConfirmationMessage').text('Une erreur est survenue, veuillez réessayer plus tard.');
+                }
+            });
+
+            $('#showApplicationModal').modal('show');
+        }
+
+        // DELETE JOB OFFER
+        function deleteJobOfferModal(jobOfferNumber) {
+            $('#deleteJobOfferModal').modal('show');
+
+            $('#deleteJobOffer').on('click', function () {
+                // Envoi de la requête AJAX
+                var serializedData = "&jobOfferNumber=" + jobOfferNumber;
+                $.ajax({
+                    url: '/recruiter/deleteJobOffer',
+                    type: 'POST',
+                    data: serializedData,
+                    success: function (response) {
+                        // Affichage du message de confirmation
+                        $('#deleteJobOfferConfirmationMessage').text('L\'offre a été supprimée avec succès !');
+                        $('#deleteJobOfferClose').css('display', 'none');
+                        $('#deleteJobOfferSubmit').css('display', 'none');
+                        $('#deleteJobOfferSpinner').css('display', 'block');
+                        setTimeout(function () {
+                            location.reload();
+                        }, 1000); // wait for 3 seconds before reloading the page
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        console.error(errorThrown);
+                        $('#deleteJobOfferConfirmationMessage').text('Une erreur est survenue, veuillez réessayer plus tard.');
+                    }
+                });
+            });
+
+        }
+
+        // DELETE JOB SHEET
+        function deleteJobSheetModal(jobSheetId) {
+            $('#deleteJobSheetModal').modal('show');
+
+            $('#deleteJobSheetModalTitle').text($('#jobSheetTitle-' + jobSheetId).text().trim() + " : Confirmer la suppression")
+
+            $('#deleteJobSheet').on('click', function () {
+                // Envoi de la requête AJAX
+                var serializedData = "&jobSheetId=" + jobSheetId;
+                $.ajax({
+                    url: '/recruiter/deleteJobSheet',
+                    type: 'POST',
+                    data: serializedData,
+                    success: function (response) {
+                        // Affichage du message de confirmation
+                        $('#deleteJobSheetConfirmationMessage').text('L\'offre a été supprimée avec succès !');
+                        $('#deleteJobSheetClose').css('display', 'none');
+                        $('#deleteJobSheetSubmit').css('display', 'none');
+                        $('#deleteJobSheetSpinner').css('display', 'block');
+                        setTimeout(function () {
+                            location.reload();
+                        }, 1000); // wait for 3 seconds before reloading the page
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        console.error(errorThrown);
+                        $('#deleteJobSheetConfirmationMessage').text('Une erreur est survenue, veuillez réessayer plus tard.');
+                    }
+                });
+            });
+        }
+
+        function acceptJoinRequest(userId) {
+            $('#joinRequest-' + userId).hide()
+
+            var serializedData = "userId=" + userId;
+            $.ajax({
+                url: '/recruiter/acceptJoinRequest',
+                type: 'POST',
+                data: serializedData,
+                success: function (response) {
+                    // Affichage du message de confirmation
+                    $('#acceptJoinRequest-' + userId).show()
+                    $('#acceptJoinRequest-' + userId).addClass('fade-in')
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    console.error(errorThrown);
+                }
+            });
+        }
+
+        function denyJoinRequest(userId) {
+            $('#joinRequest-' + userId).hide()
+
+            var serializedData = "userId=" + userId;
+            $.ajax({
+                url: '/recruiter/denyJoinRequest',
+                type: 'POST',
+                data: serializedData,
+                success: function (response) {
+                    // Affichage du message de confirmation
+                    $('#denyJoinRequest-' + userId).show()
+                    $('#denyJoinRequest-' + userId).add('fade-in')
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    console.error(errorThrown);
+                }
+            });
+        }
+
+    </script>
+
+
+
+
+</body>
+
+</html>
